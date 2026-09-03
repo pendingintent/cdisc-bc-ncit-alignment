@@ -6,7 +6,6 @@ requests instead of one per code, and runs batches concurrently.
 
 from __future__ import annotations
 
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Callable, Iterable, Iterator
 
@@ -81,18 +80,3 @@ def fetch_concepts(
                 on_progress(done_batches, total_batches)
             for concept in batch:
                 yield concept
-
-
-def throttle(min_interval_s: float) -> Callable[[], None]:
-    """Return a callable that sleeps so successive calls are spaced by at least
-    min_interval_s seconds. Use when tuning request rate for a shared API."""
-    state = {"last": 0.0}
-
-    def tick() -> None:
-        now = time.monotonic()
-        wait = min_interval_s - (now - state["last"])
-        if wait > 0:
-            time.sleep(wait)
-        state["last"] = time.monotonic()
-
-    return tick
